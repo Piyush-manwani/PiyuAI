@@ -11,91 +11,514 @@ echo  ██║     ██║   ██║   ╚██████╔╝██║
 echo  ╚═╝     ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝
 echo.
 echo  AI Coding Assistant - Powered by NVIDIA NIM
-echo  Installing for Windows...
 echo.
 
-:: ── Check if Python is already installed ──────────────────────────────────
+set INSTALL_DIR=%USERPROFILE%\piyuai
+set PYFILE=%INSTALL_DIR%\piyuai.py
+set LAUNCHER=%INSTALL_DIR%\piyuai.cmd
+
+:: ── Check Python ──────────────────────────────────────────────────────────────
 python --version >nul 2>&1
 if %errorlevel% == 0 (
-    echo [✓] Python found. Using existing installation.
-    goto :install_deps
+    for /f "tokens=2" %%v in ('python --version 2^>^&1') do set PYVER=%%v
+    echo [OK] Python !PYVER! found.
+    goto :write_script
 )
 
-:: ── No Python — download and install it silently ──────────────────────────
-echo [~] Python not found. Downloading Python 3.11...
-echo.
-
-set PYTHON_URL=https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe
-set PYTHON_INSTALLER=%TEMP%\python-installer.exe
-
-curl -L --progress-bar "%PYTHON_URL%" -o "%PYTHON_INSTALLER%"
+:: ── Download Python ───────────────────────────────────────────────────────────
+echo [..] Python not found. Downloading Python 3.11...
+set PYINST=%TEMP%\python-3.11.9-amd64.exe
+curl -L --progress-bar "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe" -o "%PYINST%"
 if %errorlevel% neq 0 (
-    echo [✗] Failed to download Python. Check your internet connection.
+    echo [ERR] Failed to download Python. Check your internet connection.
     pause & exit /b 1
 )
-
-echo [~] Installing Python silently...
-"%PYTHON_INSTALLER%" /quiet InstallAllUsers=0 PrependPath=1 Include_pip=1
+echo [..] Installing Python silently ^(this may take a minute^)...
+"%PYINST%" /quiet InstallAllUsers=0 PrependPath=1 Include_pip=1 Include_launcher=0
 if %errorlevel% neq 0 (
-    echo [✗] Python installation failed.
+    echo [ERR] Python install failed. Try installing manually from https://python.org
     pause & exit /b 1
 )
-
-:: Refresh PATH so python is found
-call refreshenv >nul 2>&1
 set "PATH=%LOCALAPPDATA%\Programs\Python\Python311;%LOCALAPPDATA%\Programs\Python\Python311\Scripts;%PATH%"
+echo [OK] Python installed.
 
-echo [✓] Python installed successfully.
-echo.
-
-:install_deps
-:: ── Create install directory ───────────────────────────────────────────────
-set INSTALL_DIR=%USERPROFILE%\piyuai
+:write_script
+:: ── Create install folder ─────────────────────────────────────────────────────
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+echo [..] Writing piyuai.py...
+if exist "%PYFILE%" del "%PYFILE%"
 
-echo [~] Downloading Piyuai...
+echo #^!/usr/bin/env python3>> "%PYFILE%"
+echo """>> "%PYFILE%"
+echo Piyuai - AI Coding Assistant powered by NVIDIA NIM>> "%PYFILE%"
+echo Like Claude Code, but runs on NVIDIA's NIM inference platform.>> "%PYFILE%"
+echo """>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo import os>> "%PYFILE%"
+echo import sys>> "%PYFILE%"
+echo import json>> "%PYFILE%"
+echo import subprocess>> "%PYFILE%"
+echo import tempfile>> "%PYFILE%"
+echo import re>> "%PYFILE%"
+echo from pathlib import Path>> "%PYFILE%"
+echo from datetime import datetime>> "%PYFILE%"
+echo from typing import Optional>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo try:>> "%PYFILE%"
+echo     from openai import OpenAI>> "%PYFILE%"
+echo     from rich.console import Console>> "%PYFILE%"
+echo     from rich.panel import Panel>> "%PYFILE%"
+echo     from rich.syntax import Syntax>> "%PYFILE%"
+echo     from rich.markdown import Markdown>> "%PYFILE%"
+echo     from rich.table import Table>> "%PYFILE%"
+echo     from rich.live import Live>> "%PYFILE%"
+echo     from rich.text import Text>> "%PYFILE%"
+echo     from rich import box>> "%PYFILE%"
+echo     from prompt_toolkit import PromptSession>> "%PYFILE%"
+echo     from prompt_toolkit.history import FileHistory>> "%PYFILE%"
+echo     from prompt_toolkit.auto_suggest import AutoSuggestFromHistory>> "%PYFILE%"
+echo     from prompt_toolkit.styles import Style>> "%PYFILE%"
+echo     from prompt_toolkit.key_binding import KeyBindings>> "%PYFILE%"
+echo except ImportError as e:>> "%PYFILE%"
+echo     print(f"Missing dependency: {e}")>> "%PYFILE%"
+echo     print("Run: pip install openai rich prompt_toolkit")>> "%PYFILE%"
+echo     sys.exit(1)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Config ───────────────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo CONFIG_FILE = Path.home() / ".piyuai" / "config.json">> "%PYFILE%"
+echo HISTORY_FILE = Path.home() / ".piyuai" / "history">> "%PYFILE%"
+echo CONVERSATION_FILE = Path.home() / ".piyuai" / "conversation.json">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo NVIDIA_NIM_BASE_URL = "https://integrate.api.nvidia.com/v1">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo AVAILABLE_MODELS = {>> "%PYFILE%"
+echo     "1": ("meta/llama-3.1-70b-instruct",      "Llama 3.1 70B   – Fast, great for code"),>> "%PYFILE%"
+echo     "2": ("meta/llama-3.1-405b-instruct",     "Llama 3.1 405B  – Most powerful"),>> "%PYFILE%"
+echo     "3": ("mistralai/codestral-22b-instruct-v0.1", "Codestral 22B   – Code specialist"),>> "%PYFILE%"
+echo     "4": ("microsoft/phi-3-medium-128k-instruct",  "Phi-3 Medium    – Lightweight & fast"),>> "%PYFILE%"
+echo     "5": ("google/gemma-2-27b-it",            "Gemma 2 27B     – Google's open model"),>> "%PYFILE%"
+echo }>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo SYSTEM_PROMPT = """You are Piyuai, an expert AI coding assistant powered by NVIDIA NIM.>> "%PYFILE%"
+echo You help developers write, debug, explain, and improve code across all languages.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo When writing code:>> "%PYFILE%"
+echo - Always use code blocks with the correct language identifier>> "%PYFILE%"
+echo - Explain what the code does briefly before or after>> "%PYFILE%"
+echo - Suggest improvements when you see potential issues>> "%PYFILE%"
+echo - Be concise but thorough>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo When debugging:>> "%PYFILE%"
+echo - Identify the root cause clearly>> "%PYFILE%"
+echo - Provide a corrected version of the code>> "%PYFILE%"
+echo - Explain why the bug occurred>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo You have access to tools the user can invoke via slash commands.>> "%PYFILE%"
+echo Always be direct, technical, and helpful.""">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Utilities ────────────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo console = Console()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def ensure_config_dir():>> "%PYFILE%"
+echo     config_dir = Path.home() / ".piyuai">> "%PYFILE%"
+echo     config_dir.mkdir(exist_ok=True)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def load_config() -> dict:>> "%PYFILE%"
+echo     ensure_config_dir()>> "%PYFILE%"
+echo     if CONFIG_FILE.exists():>> "%PYFILE%"
+echo         with open(CONFIG_FILE) as f:>> "%PYFILE%"
+echo             return json.load(f)>> "%PYFILE%"
+echo     return {}>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def save_config(cfg: dict):>> "%PYFILE%"
+echo     ensure_config_dir()>> "%PYFILE%"
+echo     with open(CONFIG_FILE, "w") as f:>> "%PYFILE%"
+echo         json.dump(cfg, f, indent=2)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def load_conversation() -> list:>> "%PYFILE%"
+echo     if CONVERSATION_FILE.exists():>> "%PYFILE%"
+echo         with open(CONVERSATION_FILE) as f:>> "%PYFILE%"
+echo             return json.load(f)>> "%PYFILE%"
+echo     return []>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def save_conversation(messages: list):>> "%PYFILE%"
+echo     ensure_config_dir()>> "%PYFILE%"
+echo     with open(CONVERSATION_FILE, "w") as f:>> "%PYFILE%"
+echo         json.dump(messages, f, indent=2)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def clear_conversation():>> "%PYFILE%"
+echo     if CONVERSATION_FILE.exists():>> "%PYFILE%"
+echo         CONVERSATION_FILE.unlink()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def get_timestamp():>> "%PYFILE%"
+echo     return datetime.now().strftime("%%H:%%M:%%S")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def detect_language(code: str) -> str:>> "%PYFILE%"
+echo     """Basic language detection from code content.""">> "%PYFILE%"
+echo     if re.search(r'^\s*(def |import |from .* import|class .*:)', code, re.M):>> "%PYFILE%"
+echo         return "python">> "%PYFILE%"
+echo     if re.search(r'(const |let |var |=>|require\(|module\.exports)', code):>> "%PYFILE%"
+echo         return "javascript">> "%PYFILE%"
+echo     if re.search(r'(#include|int main\(|std::)', code):>> "%PYFILE%"
+echo         return "cpp">> "%PYFILE%"
+echo     if re.search(r'(func |package main|:=)', code):>> "%PYFILE%"
+echo         return "go">> "%PYFILE%"
+echo     if re.search(r'(fn |let mut|use std::)', code):>> "%PYFILE%"
+echo         return "rust">> "%PYFILE%"
+echo     return "text">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Display helpers ──────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def print_banner():>> "%PYFILE%"
+echo     console.print()>> "%PYFILE%"
+echo     banner = Text()>> "%PYFILE%"
+echo     banner.append("  ██████╗ ██╗██╗   ██╗██╗   ██╗ █████╗ ██╗\n", style="bold green")>> "%PYFILE%"
+echo     banner.append("  ██╔══██╗██║╚██╗ ██╔╝██║   ██║██╔══██╗██║\n", style="bold green")>> "%PYFILE%"
+echo     banner.append("  ██████╔╝██║ ╚████╔╝ ██║   ██║███████║██║\n", style="bold green")>> "%PYFILE%"
+echo     banner.append("  ██╔═══╝ ██║  ╚██╔╝  ██║   ██║██╔══██║██║\n", style="bold green")>> "%PYFILE%"
+echo     banner.append("  ██║     ██║   ██║   ╚██████╔╝██║  ██║██║\n", style="bold green")>> "%PYFILE%"
+echo     banner.append("  ╚═╝     ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝\n", style="bold green")>> "%PYFILE%"
+echo     console.print(banner)>> "%PYFILE%"
+echo     console.print("  [dim]AI Coding Assistant · Powered by NVIDIA NIM[/dim]")>> "%PYFILE%"
+echo     console.print()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def print_help():>> "%PYFILE%"
+echo     table = Table(box=box.SIMPLE, show_header=True, header_style="bold green")>> "%PYFILE%"
+echo     table.add_column("Command", style="cyan", width=22)>> "%PYFILE%"
+echo     table.add_column("Description", style="white")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     commands = [>> "%PYFILE%"
+echo         ("/help",         "Show this help"),>> "%PYFILE%"
+echo         ("/model",        "Switch NIM model"),>> "%PYFILE%"
+echo         ("/models",       "List all available models"),>> "%PYFILE%"
+echo         ("/key",          "Set/update NVIDIA NIM API key"),>> "%PYFILE%"
+echo         ("/clear",        "Clear conversation history"),>> "%PYFILE%"
+echo         ("/run <code>",   "Run a Python snippet"),>> "%PYFILE%"
+echo         ("/file <path>",  "Read a file and add to context"),>> "%PYFILE%"
+echo         ("/context",      "Show current context size"),>> "%PYFILE%"
+echo         ("/save <name>",  "Save conversation to file"),>> "%PYFILE%"
+echo         ("/exit / /quit", "Exit Piyuai"),>> "%PYFILE%"
+echo     ]>> "%PYFILE%"
+echo     for cmd, desc in commands:>> "%PYFILE%"
+echo         table.add_row(cmd, desc)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     console.print(Panel(table, title="[bold green]Piyuai Commands[/bold green]", border_style="green"))>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def render_response(text: str):>> "%PYFILE%"
+echo     """Render assistant response, detecting and syntax-highlighting code blocks.""">> "%PYFILE%"
+echo     parts = re.split(r'(```(?:\w+)?\n[\s\S]*?```)', text)>> "%PYFILE%"
+echo     for part in parts:>> "%PYFILE%"
+echo         if part.startswith("```"):>> "%PYFILE%"
+echo             lines = part.strip().split("\n")>> "%PYFILE%"
+echo             lang = lines[0][3:].strip() or "text">> "%PYFILE%"
+echo             code = "\n".join(lines[1:-1])>> "%PYFILE%"
+echo             console.print(Syntax(code, lang, theme="monokai", line_numbers=False,>> "%PYFILE%"
+echo                                   background_color="default"))>> "%PYFILE%"
+echo         elif part.strip():>> "%PYFILE%"
+echo             console.print(Markdown(part))>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Setup wizard ─────────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def setup_wizard() -> dict:>> "%PYFILE%"
+echo     console.print(Panel(>> "%PYFILE%"
+echo         "[bold]Welcome to Piyuai^![/bold]\n\nLet's get you set up with NVIDIA NIM.\n">> "%PYFILE%"
+echo         "Get a free API key at [link=https://build.nvidia.com]build.nvidia.com[/link]",>> "%PYFILE%"
+echo         border_style="green">> "%PYFILE%"
+echo     ))>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     api_key = console.input("\n[green]→[/green] Enter your NVIDIA NIM API key: ").strip()>> "%PYFILE%"
+echo     if not api_key:>> "%PYFILE%"
+echo         console.print("[red]No API key provided. Exiting.[/red]")>> "%PYFILE%"
+echo         sys.exit(1)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     console.print("\n[bold]Available models:[/bold]")>> "%PYFILE%"
+echo     for num, (model_id, desc) in AVAILABLE_MODELS.items():>> "%PYFILE%"
+echo         console.print(f"  [cyan]{num}[/cyan]  {desc}")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     choice = console.input("\n[green]→[/green] Choose model [1-5] (default: 1): ").strip() or "1">> "%PYFILE%"
+echo     model_id = AVAILABLE_MODELS.get(choice, AVAILABLE_MODELS["1"])[0]>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     cfg = {"api_key": api_key, "model": model_id}>> "%PYFILE%"
+echo     save_config(cfg)>> "%PYFILE%"
+echo     console.print(f"\n[green]✓[/green] Config saved. Using [bold]{model_id}[/bold]\n")>> "%PYFILE%"
+echo     return cfg>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── NIM client ───────────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def get_client(api_key: str) -> OpenAI:>> "%PYFILE%"
+echo     return OpenAI(>> "%PYFILE%"
+echo         base_url=NVIDIA_NIM_BASE_URL,>> "%PYFILE%"
+echo         api_key=api_key>> "%PYFILE%"
+echo     )>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def stream_response(client: OpenAI, model: str, messages: list) -> str:>> "%PYFILE%"
+echo     """Stream a response from NVIDIA NIM and return full text.""">> "%PYFILE%"
+echo     full_text = "">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     console.print(f"\n[dim]● piyuai[/dim] [dim]{get_timestamp()}[/dim]")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     with Live(console=console, refresh_per_second=15) as live:>> "%PYFILE%"
+echo         buffer = "">> "%PYFILE%"
+echo         try:>> "%PYFILE%"
+echo             stream = client.chat.completions.create(>> "%PYFILE%"
+echo                 model=model,>> "%PYFILE%"
+echo                 messages=messages,>> "%PYFILE%"
+echo                 stream=True,>> "%PYFILE%"
+echo                 max_tokens=4096,>> "%PYFILE%"
+echo                 temperature=0.2,>> "%PYFILE%"
+echo             )>> "%PYFILE%"
+echo             for chunk in stream:>> "%PYFILE%"
+echo                 delta = chunk.choices[0].delta.content or "">> "%PYFILE%"
+echo                 buffer += delta>> "%PYFILE%"
+echo                 full_text += delta>> "%PYFILE%"
+echo                 live.update(Text(buffer, style="white"))>> "%PYFILE%"
+echo         except Exception as e:>> "%PYFILE%"
+echo             live.update(Text(f"[Error] {e}", style="red"))>> "%PYFILE%"
+echo             return "">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     console.print()  # newline after streaming>> "%PYFILE%"
+echo     return full_text>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Slash command handlers ───────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def cmd_run(code_snippet: str):>> "%PYFILE%"
+echo     """Run a Python snippet and show output.""">> "%PYFILE%"
+echo     if not code_snippet.strip():>> "%PYFILE%"
+echo         console.print("[yellow]Usage: /run <python code>[/yellow]")>> "%PYFILE%"
+echo         return None>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:>> "%PYFILE%"
+echo         f.write(code_snippet)>> "%PYFILE%"
+echo         tmpfile = f.name>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     try:>> "%PYFILE%"
+echo         result = subprocess.run(>> "%PYFILE%"
+echo             [sys.executable, tmpfile],>> "%PYFILE%"
+echo             capture_output=True, text=True, timeout=15>> "%PYFILE%"
+echo         )>> "%PYFILE%"
+echo         output = result.stdout or result.stderr or "(no output)">> "%PYFILE%"
+echo         style = "green" if result.returncode == 0 else "red">> "%PYFILE%"
+echo         console.print(Panel(output.strip(), title="[bold]Output[/bold]",>> "%PYFILE%"
+echo                              border_style=style))>> "%PYFILE%"
+echo         return output>> "%PYFILE%"
+echo     except subprocess.TimeoutExpired:>> "%PYFILE%"
+echo         console.print("[red]Execution timed out (15s limit)[/red]")>> "%PYFILE%"
+echo         return "Execution timed out">> "%PYFILE%"
+echo     finally:>> "%PYFILE%"
+echo         Path(tmpfile).unlink(missing_ok=True)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def cmd_file(path_str: str, messages: list) -> list:>> "%PYFILE%"
+echo     """Read a file and inject into conversation context.""">> "%PYFILE%"
+echo     path = Path(path_str.strip()).expanduser()>> "%PYFILE%"
+echo     if not path.exists():>> "%PYFILE%"
+echo         console.print(f"[red]File not found: {path}[/red]")>> "%PYFILE%"
+echo         return messages>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     try:>> "%PYFILE%"
+echo         content = path.read_text(encoding="utf-8", errors="replace")>> "%PYFILE%"
+echo         lang = path.suffix.lstrip(".") or "text">> "%PYFILE%"
+echo         msg = f"Here is the file `{path.name}`:\n\n```{lang}\n{content}\n```">> "%PYFILE%"
+echo         messages.append({"role": "user", "content": msg})>> "%PYFILE%"
+echo         console.print(f"[green]✓[/green] Loaded [bold]{path.name}[/bold] ">> "%PYFILE%"
+echo                        f"([dim]{len(content)} chars[/dim]) into context.")>> "%PYFILE%"
+echo     except Exception as e:>> "%PYFILE%"
+echo         console.print(f"[red]Could not read file: {e}[/red]")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     return messages>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def cmd_switch_model(cfg: dict) -> dict:>> "%PYFILE%"
+echo     console.print("\n[bold]Available models:[/bold]")>> "%PYFILE%"
+echo     for num, (model_id, desc) in AVAILABLE_MODELS.items():>> "%PYFILE%"
+echo         current = " [green]← current[/green]" if model_id == cfg.get("model") else "">> "%PYFILE%"
+echo         console.print(f"  [cyan]{num}[/cyan]  {desc}{current}")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     choice = console.input("\n[green]→[/green] Choose model [1-5]: ").strip()>> "%PYFILE%"
+echo     if choice in AVAILABLE_MODELS:>> "%PYFILE%"
+echo         cfg["model"] = AVAILABLE_MODELS[choice][0]>> "%PYFILE%"
+echo         save_config(cfg)>> "%PYFILE%"
+echo         console.print(f"[green]✓[/green] Switched to [bold]{cfg['model']}[/bold]")>> "%PYFILE%"
+echo     else:>> "%PYFILE%"
+echo         console.print("[yellow]Invalid choice, keeping current model.[/yellow]")>> "%PYFILE%"
+echo     return cfg>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def cmd_save(name: str, messages: list):>> "%PYFILE%"
+echo     name = name.strip() or f"piyuai_{datetime.now().strftime('%%Y%%m%%d_%%H%%M%%S')}">> "%PYFILE%"
+echo     out_path = Path.cwd() / f"{name}.json">> "%PYFILE%"
+echo     with open(out_path, "w") as f:>> "%PYFILE%"
+echo         json.dump(messages, f, indent=2)>> "%PYFILE%"
+echo     console.print(f"[green]✓[/green] Saved conversation to [bold]{out_path}[/bold]")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo # ─── Main REPL ────────────────────────────────────────────────────────────────>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo def main():>> "%PYFILE%"
+echo     print_banner()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     cfg = load_config()>> "%PYFILE%"
+echo     if not cfg.get("api_key"):>> "%PYFILE%"
+echo         cfg = setup_wizard()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     client = get_client(cfg["api_key"])>> "%PYFILE%"
+echo     model = cfg.get("model", AVAILABLE_MODELS["1"][0])>> "%PYFILE%"
+echo     messages = load_conversation()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     # Ensure system prompt is first>> "%PYFILE%"
+echo     if not messages or messages[0].get("role") ^!= "system":>> "%PYFILE%"
+echo         messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     console.print(f"[dim]Model:[/dim] [green]{model}[/green]  ">> "%PYFILE%"
+echo                   f"[dim]History:[/dim] [green]{len([m for m in messages if m['role']=='user'])} messages[/green]  ">> "%PYFILE%"
+echo                   f"[dim]Type /help for commands[/dim]\n")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     # Prompt session>> "%PYFILE%"
+echo     prompt_style = Style.from_dict({"prompt": "bold ansibrightyellow"})>> "%PYFILE%"
+echo     session = PromptSession(>> "%PYFILE%"
+echo         history=FileHistory(str(HISTORY_FILE)),>> "%PYFILE%"
+echo         auto_suggest=AutoSuggestFromHistory(),>> "%PYFILE%"
+echo         style=prompt_style,>> "%PYFILE%"
+echo     )>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo     while True:>> "%PYFILE%"
+echo         try:>> "%PYFILE%"
+echo             user_input = session.prompt("\n❯ ").strip()>> "%PYFILE%"
+echo         except (KeyboardInterrupt, EOFError):>> "%PYFILE%"
+echo             console.print("\n[dim]Goodbye^![/dim]")>> "%PYFILE%"
+echo             save_conversation(messages)>> "%PYFILE%"
+echo             break>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo         if not user_input:>> "%PYFILE%"
+echo             continue>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo         # ── Slash commands ──>> "%PYFILE%"
+echo         if user_input.startswith("/"):>> "%PYFILE%"
+echo             parts = user_input.split(None, 1)>> "%PYFILE%"
+echo             cmd = parts[0].lower()>> "%PYFILE%"
+echo             arg = parts[1] if len(parts) > 1 else "">> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             if cmd in ("/exit", "/quit"):>> "%PYFILE%"
+echo                 console.print("[dim]Goodbye^![/dim]")>> "%PYFILE%"
+echo                 save_conversation(messages)>> "%PYFILE%"
+echo                 break>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/help":>> "%PYFILE%"
+echo                 print_help()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/models":>> "%PYFILE%"
+echo                 for num, (mid, desc) in AVAILABLE_MODELS.items():>> "%PYFILE%"
+echo                     cur = " [green]●[/green]" if mid == model else "  ">> "%PYFILE%"
+echo                     console.print(f"  {cur}[cyan]{num}[/cyan]  {desc}")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/model":>> "%PYFILE%"
+echo                 cfg = cmd_switch_model(cfg)>> "%PYFILE%"
+echo                 model = cfg["model"]>> "%PYFILE%"
+echo                 client = get_client(cfg["api_key"])>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/key":>> "%PYFILE%"
+echo                 new_key = console.input("[green]→[/green] New NVIDIA NIM API key: ").strip()>> "%PYFILE%"
+echo                 if new_key:>> "%PYFILE%"
+echo                     cfg["api_key"] = new_key>> "%PYFILE%"
+echo                     save_config(cfg)>> "%PYFILE%"
+echo                     client = get_client(new_key)>> "%PYFILE%"
+echo                     console.print("[green]✓[/green] API key updated.")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/clear":>> "%PYFILE%"
+echo                 messages = [{"role": "system", "content": SYSTEM_PROMPT}]>> "%PYFILE%"
+echo                 clear_conversation()>> "%PYFILE%"
+echo                 console.print("[green]✓[/green] Conversation cleared.")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/run":>> "%PYFILE%"
+echo                 output = cmd_run(arg)>> "%PYFILE%"
+echo                 if output:>> "%PYFILE%"
+echo                     messages.append({"role": "user",>> "%PYFILE%"
+echo                                      "content": f"I just ran this code and got:\n```\n{output}\n```"})>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/file":>> "%PYFILE%"
+echo                 messages = cmd_file(arg, messages)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/context":>> "%PYFILE%"
+echo                 total = sum(len(m["content"]) for m in messages)>> "%PYFILE%"
+echo                 user_msgs = len([m for m in messages if m["role"] == "user"])>> "%PYFILE%"
+echo                 console.print(f"[dim]Messages:[/dim] [green]{user_msgs}[/green]  ">> "%PYFILE%"
+echo                                f"[dim]Characters:[/dim] [green]{total:,}[/green]")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             elif cmd == "/save":>> "%PYFILE%"
+echo                 cmd_save(arg, messages)>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             else:>> "%PYFILE%"
+echo                 console.print(f"[yellow]Unknown command: {cmd}. Type /help for help.[/yellow]")>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo             continue>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo         # ── Regular message → NIM ──>> "%PYFILE%"
+echo         messages.append({"role": "user", "content": user_input})>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo         try:>> "%PYFILE%"
+echo             response_text = stream_response(client, model, messages)>> "%PYFILE%"
+echo             if response_text:>> "%PYFILE%"
+echo                 messages.append({"role": "assistant", "content": response_text})>> "%PYFILE%"
+echo                 save_conversation(messages)>> "%PYFILE%"
+echo         except Exception as e:>> "%PYFILE%"
+echo             console.print(f"[red]Error: {e}[/red]")>> "%PYFILE%"
+echo             messages.pop()  # remove failed user message>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo if __name__ == "__main__":>> "%PYFILE%"
+echo     main()>> "%PYFILE%"
+echo.>> "%PYFILE%"
+echo [OK] piyuai.py written.
 
-:: Download piyuai.py
-curl -L --progress-bar "https://raw.githubusercontent.com/YOUR_USERNAME/piyuai/main/piyuai.py" -o "%INSTALL_DIR%\piyuai.py"
-if %errorlevel% neq 0 (
-    echo [✗] Failed to download piyuai.py
-    echo     Make sure you have internet access.
-    pause & exit /b 1
-)
-
-echo [✓] Downloaded piyuai.py
-
-:: ── Install Python dependencies ───────────────────────────────────────────
-echo [~] Installing dependencies...
+:: ── Install dependencies ──────────────────────────────────────────────────────
+echo [..] Installing dependencies ^(openai, rich, prompt_toolkit^)...
 python -m pip install --upgrade pip -q
 python -m pip install openai rich prompt_toolkit --no-cache-dir -q
 if %errorlevel% neq 0 (
-    echo [✗] Failed to install dependencies.
+    echo [ERR] Failed to install dependencies.
     pause & exit /b 1
 )
-echo [✓] Dependencies installed.
+echo [OK] Dependencies installed.
 
-:: ── Create launcher script ────────────────────────────────────────────────
-echo @echo off > "%INSTALL_DIR%\piyuai.cmd"
-echo python "%INSTALL_DIR%\piyuai.py" %%* >> "%INSTALL_DIR%\piyuai.cmd"
+:: ── Write launcher ────────────────────────────────────────────────────────────
+echo @echo off > "%LAUNCHER%"
+echo python "%PYFILE%" %%* >> "%LAUNCHER%"
 
-:: ── Add to PATH (user-level) ──────────────────────────────────────────────
-for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "USERPATH=%%b"
-echo %USERPATH% | find /i "%INSTALL_DIR%" >nul 2>&1
+:: ── Add to user PATH ──────────────────────────────────────────────────────────
+for /f "skip=2 tokens=3*" %%a in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "CURPATH=%%a %%b"
+echo %CURPATH% | find /i "%INSTALL_DIR%" >nul 2>&1
 if %errorlevel% neq 0 (
-    setx PATH "%USERPATH%;%INSTALL_DIR%" >nul
-    echo [✓] Added Piyuai to PATH.
+    setx PATH "%INSTALL_DIR%;%CURPATH%" >nul 2>&1
+    echo [OK] Added piyuai to PATH.
+) else (
+    echo [OK] PATH already contains piyuai directory.
+)
+
+:: ── Also copy launcher to System32 for instant global access ─────────────────
+copy "%LAUNCHER%" "%SystemRoot%\System32\piyuai.cmd" >nul 2>&1
+if %errorlevel% == 0 (
+    echo [OK] Installed piyuai command globally ^(System32^).
+) else (
+    echo [NOTE] Could not write to System32 ^(no admin^). piyuai works after reopening terminal.
 )
 
 echo.
-echo  ╔══════════════════════════════════════════════╗
-echo  ║   Piyuai installed successfully!             ║
-echo  ║                                              ║
-echo  ║   Open a NEW terminal and run:               ║
-echo  ║     piyuai                                   ║
-echo  ║                                              ║
-echo  ║   Get your free NVIDIA NIM API key at:       ║
-echo  ║     https://build.nvidia.com                 ║
-echo  ╚══════════════════════════════════════════════╝
+echo  ============================================
+echo   Piyuai installed successfully!
+echo  ============================================
+echo.
+echo   Open a NEW terminal and type:
+echo     piyuai
+echo.
+echo   Get your free NVIDIA NIM API key at:
+echo     https://build.nvidia.com
+echo.
+echo   To run right now:
+echo     python %PYFILE%
 echo.
 pause
