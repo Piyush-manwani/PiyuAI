@@ -7,20 +7,20 @@
 
 ### Linux / macOS
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuAI/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.sh | bash
 ```
 
 ### Windows (PowerShell)
 ```powershell
-irm https://raw.githubusercontent.com/Piyush-manwani/piyuAI/main/install.bat -OutFile install.bat; .\install.bat
+irm https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.bat -OutFile install.bat; .\install.bat
 ```
 
 ### Windows (CMD)
 ```cmd
-curl -L https://raw.githubusercontent.com/Piyush-manwani/piyuAI/main/install.bat -o install.bat && install.bat
+curl -L https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.bat -o install.bat && install.bat
 ```
 
-> The installer auto-downloads Python if missing, installs all deps, and adds `piyuAI` to your PATH.
+> The installer auto-downloads Python if missing, installs all deps, and adds `piyuai` to your PATH.
 
 ---
 
