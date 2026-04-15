@@ -9,10 +9,6 @@
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.sh | bash
 ```
-
-### Windows (PowerShell)
-```powershell
-irm https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.bat -OutFile install.bat; .\install.bat
 ```
 
 ### Windows (CMD)
