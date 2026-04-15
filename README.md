@@ -13,6 +13,7 @@ curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.
 
 ### Windows (CMD)
 ```cmd
+
 curl -L https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.bat -o install.bat && install.bat
 ```
 
