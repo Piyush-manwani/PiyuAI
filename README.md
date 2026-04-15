@@ -27,7 +27,7 @@ curl -L https://raw.githubusercontent.com/Piyush-manwani/piyuAI/main/install.bat
 ## Manual Install (if you have Python)
 
 ```bash
-git clone https://github.com/Piyush-manwani/piyuai.git
+git clone https://github.com/Piyush-manwani/piyuAI.git
 cd piyuai
 pip install -r requirements.txt
 python piyuai.py
