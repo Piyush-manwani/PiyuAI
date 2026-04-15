@@ -9,7 +9,6 @@
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.sh | bash
 ```
-```
 
 ### Windows (CMD)
 ```cmd
