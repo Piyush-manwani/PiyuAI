@@ -1,38 +1,31 @@
-# PiyuAI
+# PiyuAI 🟢
 **AI Coding Assistant powered by NVIDIA NIM** — like Claude Code, but runs on NVIDIA's inference platform.
 
 ---
 
-## One-line Install (no Python needed)
+## ⚡ Install
 
-### Linux / macOS
-```bash
-curl -fsSL https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.sh | bash
-```
-
-### Windows (CMD)
+### Windows
 ```cmd
-
-curl -L https://raw.githubusercontent.com/Piyush-manwani/piyuai/main/install.bat -o install.bat && install.bat
+curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI_setup.exe -o PiyuAI_setup.exe
 ```
+Then double-click `PiyuAI_setup.exe` to install.
 
-> The installer auto-downloads Python if missing, installs all deps, and adds `piyuai` to your PATH.
+Or download directly: [PiyuAI_setup.exe](https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI_setup.exe)
 
----
-
-## Manual Install (if you have Python)
-
+### macOS
 ```bash
-git clone https://github.com/Piyush-manwani/piyuAI.git
-cd piyuai
-pip install -r requirements.txt
-python piyuai.py
+curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI.dmg -o PiyuAI.dmg
 ```
+Then open `PiyuAI.dmg` and drag PiyuAI to your Applications folder.
+
+Or download directly: [PiyuAI.dmg](https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI.dmg)
 
 ---
 
 ## First Launch
-Get a free NVIDIA NIM API key at https://build.nvidia.com — Piyuai will ask on first run.
+On first run, PiyuAI will ask for your **NVIDIA NIM API key**.
+Get one free at 👉 [build.nvidia.com](https://build.nvidia.com)
 
 ---
 
@@ -43,15 +36,28 @@ Get a free NVIDIA NIM API key at https://build.nvidia.com — Piyuai will ask on
 | `/help` | Show all commands |
 | `/model` | Switch NIM model |
 | `/key` | Update API key |
-| `/clear` | Clear history |
-| `/run <code>` | Run a Python snippet |
-| `/file <path>` | Load file into context |
-| `/save [name]` | Save conversation |
-| `/exit` | Quit |
+| `/clear` | Clear conversation history |
+| `/run <code>` | Execute a Python snippet |
+| `/file <path>` | Load a file into context |
+| `/save [name]` | Save conversation to JSON |
+| `/exit` | Quit PiyuAI |
+
+---
+
+## Available Models
+
+| # | Model | Best For |
+|---|---|---|
+| 1 | meta/llama-3.1-70b-instruct | Fast, general coding (default) |
+| 2 | meta/llama-3.1-405b-instruct | Most powerful |
+| 3 | mistralai/codestral-22b-instruct-v0.1 | Code specialist |
+| 4 | microsoft/phi-3-medium-128k-instruct | Lightweight & fast |
+| 5 | google/gemma-2-27b-it | Google's open model |
 
 ---
 
 ## Uninstall
 
-Linux/macOS: `rm -rf ~/.piyuAI && rm ~/.local/bin/piyuAI`  
-Windows: `rmdir /s /q %USERPROFILE%\piyuAI`
+**Windows:** Go to Settings → Apps → search PiyuAI → Uninstall
+
+**macOS:** Drag PiyuAI from Applications to Trash
