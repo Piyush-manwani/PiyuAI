@@ -1,46 +1,86 @@
 # PiyuAI 🟢
-**AI Coding Assistant powered by NVIDIA NIM** — like Claude Code, but runs on NVIDIA's inference platform.
+**AI Coding Assistant powered by NVIDIA NIM** — like Claude Code, but runs on NVIDIA's inference platform. Now with Rust support.
 
 ---
 
-## ⚡ Install
+## Install
 
 ### Windows
 ```cmd
 curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI_setup.exe -o PiyuAI_setup.exe
 ```
-Then double-click `PiyuAI_setup.exe` to install.
-
-Or download directly: [PiyuAI_setup.exe](https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI_setup.exe)
+Then double-click `PiyuAI_setup.exe`.
 
 ### macOS
 ```bash
 curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI.dmg -o PiyuAI.dmg
 ```
-Then open `PiyuAI.dmg` and drag PiyuAI to your Applications folder.
-
-Or download directly: [PiyuAI.dmg](https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI.dmg)
+Then open `PiyuAI.dmg` and follow the installer.
 
 ---
 
 ## First Launch
-On first run, PiyuAI will ask for your **NVIDIA NIM API key**.
+On first run, PiyuAI asks for your **NVIDIA NIM API key**.
 Get one free at 👉 [build.nvidia.com](https://build.nvidia.com)
 
 ---
 
 ## Commands
 
+### General
 | Command | Description |
 |---|---|
 | `/help` | Show all commands |
 | `/model` | Switch NIM model |
+| `/models` | List available models |
 | `/key` | Update API key |
 | `/clear` | Clear conversation history |
-| `/run <code>` | Execute a Python snippet |
-| `/file <path>` | Load a file into context |
+| `/file <path>` | Load any file into context |
+| `/context` | Show context size |
 | `/save [name]` | Save conversation to JSON |
 | `/exit` | Quit PiyuAI |
+
+### Python
+| Command | Description |
+|---|---|
+| `/run <code>` | Execute a Python snippet inline |
+
+### Rust
+| Command | Description |
+|---|---|
+| `/rust <code>` | Compile and run a Rust snippet |
+| `/cargo <cmd>` | Run cargo in current project directory |
+| `/rustfmt <code>` | Format Rust code with rustfmt |
+| `/rustup` | Show Rust install instructions |
+
+---
+
+## Rust Integration
+
+PiyuAI has first-class Rust support:
+
+- **Run snippets instantly** — `/rust println!("hello");` compiles and runs with `rustc`, no project needed
+- **Cargo integration** — `/cargo build`, `/cargo test`, `/cargo run` work in any Rust project directory
+- **Auto wraps snippets** — you don't need to write `fn main()`, PiyuAI adds it for you
+- **Formatter** — `/rustfmt` pretty-prints your Rust code via `rustfmt`
+- **AI knows Rust** — asks about ownership, lifetimes, error handling, crates.io packages
+- **Rust-aware file loading** — `/file src/main.rs` loads with proper Rust syntax highlighting in context
+
+To use Rust features, install Rust from [rustup.rs](https://rustup.rs) — PiyuAI will detect it automatically on launch.
+
+### Example Rust session
+```
+> write a rust function that reads a file and counts lines
+
+> /rust
+fn count_lines(path: &str) -> usize {
+    std::fs::read_to_string(path).unwrap().lines().count()
+}
+
+> /cargo test
+
+> /file src/main.rs
+```
 
 ---
 
@@ -58,6 +98,6 @@ Get one free at 👉 [build.nvidia.com](https://build.nvidia.com)
 
 ## Uninstall
 
-**Windows:** Go to Settings → Apps → search PiyuAI → Uninstall
+**Windows:** Settings → Apps → PiyuAI → Uninstall
 
 **macOS:** Drag PiyuAI from Applications to Trash
