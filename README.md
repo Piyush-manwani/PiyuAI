@@ -9,7 +9,8 @@
 ```
 Then double-click `PiyuAI_setup.exe
 ```
-Then open `PiyuAI.dmg` but this one will need python
+###Macos
+open `PiyuAI.dmg` but this one will need python
 
 ---
 
