@@ -1,21 +1,15 @@
 # PiyuAI 🟢
-**AI Coding Assistant powered by NVIDIA NIM** — like Claude Code, but runs on NVIDIA's inference platform. Now with Rust support.
+**AI Coding Assistant powered by NVIDIA NIM** — like Claude Code, but runs on NVIDIA's inference platform.
 
 ---
 
 ## Install
 
 ### Windows
-```cmd
-curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI_setup.exe -o PiyuAI_setup.exe
 ```
-Then double-click `PiyuAI_setup.exe`.
-
-### macOS
-```bash
-curl -L --max-redirs 10 https://github.com/Piyush-manwani/PiyuAI/releases/download/1.0.0/PiyuAI.dmg -o PiyuAI.dmg
+Then double-click `PiyuAI_setup.exe
 ```
-Then open `PiyuAI.dmg` and follow the installer.
+Then open `PiyuAI.dmg` but this one will need python
 
 ---
 
